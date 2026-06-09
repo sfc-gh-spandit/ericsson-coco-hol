@@ -1006,7 +1006,7 @@ Database: SEC_DEMO | Schemas: BRONZE, SILVER, GOLD, APP
 - COMPANY_MASTER has ARRAY columns (LEI, GLOBAL_TICKERS) — handle or exclude
 - ~35% null TRANSACTION_PRICE_PER_SHARE — expected for options exercises (no cash price)
 - ~30% null TRANSACTION_DATE — exclude these from Silver (incomplete filings)
-- Duplicate rows on (ADSH, _SECURITY_SEQUENCE) — deduplicate keeping most recent REPORTED_PERIOD_DATE
+- Duplicate rows on (ADSH, _SECURITY_SEQUENCE) — the true unique key for trades is (ADSH, _SECURITY_SEQUENCE, REPORTING_OWNER_CIK, SECURITY_TITLE). Deduplicate on this composite key keeping most recent REPORTED_PERIOD_DATE
 
 ## Architecture
 - **BRONZE**: Raw immutable copies of marketplace tables (CTAS, no transformations)
@@ -1264,7 +1264,7 @@ Database: SEC_DEMO | Schemas: BRONZE, SILVER, GOLD, APP
     <h3>Trades Fact Table</h3>
     <div class="prompt-block">
       <div class="prompt-header"><span class="prompt-badge">Prompt</span><button class="copy-btn" onclick="copyPrompt(this)">Copy</button></div>
-      <pre>Create the SILVER.TRADES fact table — this is the core of our pipeline. Join trades with their owners, calculate a TRANSACTION_VALUE column, exclude rows missing a transaction date, and deduplicate.</pre>
+      <pre>Create the SILVER.TRADES fact table — this is the core of our pipeline. Join trades with their owners on ADSH, calculate a TRANSACTION_VALUE column (shares * price), exclude rows missing a transaction date, and deduplicate by (ADSH, _SECURITY_SEQUENCE, REPORTING_OWNER_CIK, SECURITY_TITLE) keeping the most recent.</pre>
     </div>
     <div class="expected-block">
       <div class="label">Expected</div>
